@@ -7,5 +7,7 @@ This has been tested to work on windows only so far.  But since I'm using Raylib
   
 For windows users, as long as your gcc.exe (mingw) is in your path, you should be able to just simply run the bat file.  
   
-  
+UPDATE LOG 8/27/2023 : Embedded Font as a C source file  
+
   ![That Calculator](progress.png)  
+  

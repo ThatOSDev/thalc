@@ -1,5 +1,4 @@
 
-// TODO : Embed Font as C file
 // TODO : set-up order of math. MATH ORDER MATTERS !
 // TODO : Fix Decimals (float)
 // TODO : Decide on long long (64-Bit) or 32-Bit. To be decided later.
@@ -12,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "ElaineSans_FONT.h"
 
 #define MAXBUTTONS 72
 
@@ -28,10 +29,17 @@ Font totalsFont;
 
 void createWindow()
 {
+#ifndef DEBUGME
+    SetTraceLogLevel(LOG_NONE);
+#endif // DEBUGME
+
+    SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(screenWidth, screenHeight, "Thalc v1.0  --  ThatOSDev");
-    totalsFont = LoadFontEx("ElaineSans-SemiBold.ttf", 24, 0, 0);
-    buttonFont = LoadFontEx("ElaineSans-SemiBold.ttf", 44, 0, 0);
-    displayFont = LoadFontEx("ElaineSans-SemiBold.ttf", 70, 0, 0);
+
+    totalsFont  = LoadFontFromMemory(".ttf", asciifont, 347736, 24, 0, 0);
+    buttonFont  = LoadFontFromMemory(".ttf", asciifont, 347736, 44, 0, 0);
+    displayFont = LoadFontFromMemory(".ttf", asciifont, 347736, 70, 0, 0);
+
     SetTargetFPS(60);
 }
 
