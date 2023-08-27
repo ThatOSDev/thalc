@@ -7,7 +7,8 @@ This has been tested to work on windows only so far.  But since I'm using Raylib
   
 For windows users, as long as your gcc.exe (mingw) is in your path, you should be able to just simply run the bat file.  
   
-UPDATE LOG 8/27/2023 : Embedded Font as a C source file  
+UPDATE LOG 8/27/2023 : Embedded the Font as a C source file & added bin2file folder with source so you can examine how I converted the  binary TTF file to a C-header source file.  
+   
 
   ![That Calculator](progress.png)  
   
