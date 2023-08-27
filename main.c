@@ -1,11 +1,16 @@
 
-// TODO : set-up order of math. MATH ORDER MATTERS !
+// TODO : Set-up order of math. MATH ORDER MATTERS !
 // TODO : Fix Decimals (float)
-// TODO : Decide on long long (64-Bit) or 32-Bit. To be decided later.
 // TODO : Add ICON
 // TODO : Fix percentages
 // TODO : Fix zeros
 // TODO : Allow more then 3 tokens
+
+// FIXED : Font Embedded as a C file
+// FIXED : Can continue new math set without requiring a CLEAR "C" button being pressed
+
+// UNDECIDED : Decide on long long (64-Bit) or 32-Bit for all math problems. Or use Doubles for everything.
+//             If doubles, then total rewrite of math section will be required.
 
 #include "raylib.h"
 #include <stdio.h>
@@ -117,17 +122,41 @@ enum symbols
     DECIMAL
 };
 
-
+char tokenSet[14] = {'\0'};
 char displayTotals[100] = {'\0'};
-char displayNumber[30] = {'\0'};
-int  tokens[10] = {'0'};
+char displayNumber[34] = {'\0'};
+int  tokens[14] = {'0'};
 
-int stringIndex = 0, numIndex = 0, offsetTotals = 0, offsetNumber = 0, repeat = 0, numLimit = 0, tokenIndex = 0;
+int equalTriggered = 0, stringIndex = 0, numIndex = 0, offsetTotals = 0, offsetNumber = 0, repeat = 0, numLimit = 0, tokenIndex = 0, tokenSetIndex = 0;
+
+void resetArrays()
+{
+    for(int t = 0; t < 14; t++)
+    {
+        tokens[t] = '\0';
+    }
+    for(int t = 0; t < 14; t++)
+    {
+        tokenSet[t] = '\0';
+    }
+
+    tokenIndex = 0;
+    tokenSetIndex = 0;
+    equalTriggered = 0;
+    offsetNumber = 0;
+    offsetTotals = 0;
+}
 
 void combineTokens()
 {
-    int totalTokens = tokenIndex;
-    printf("TOTAL TOKENS : %d\n", totalTokens);   //  TODO : Remove this when no longer needed
+    for(int r = 0; r < tokenSetIndex; r++)
+    {
+        if(tokenSet[r] == MULTIPLY)
+        {
+            printf("* @ %d\n", r);
+        }
+    }
+
     tokenIndex = 1;
     int result = 0;
     if(tokens[tokenIndex] == ADDITION)
@@ -176,10 +205,22 @@ void addToString(char* tempString)
         if(numLimit == 1)
             return;
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+        }
+
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
+        tokenSet[tokenSetIndex] = MULTIPLY;
+        tokenSetIndex++;
+
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
         tokens[tokenIndex] = MULTIPLY;
         tokenIndex++;
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
 
         numIndex = 0;
         offsetNumber = 30;
@@ -202,10 +243,22 @@ void addToString(char* tempString)
         if(numLimit == 1)
             return;
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+        }
+
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
+        tokenSet[tokenSetIndex] = PERCENT;
+        tokenSetIndex++;
+
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
         tokens[tokenIndex] = PERCENT;
         tokenIndex++;
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
 
         numIndex = 0;
         offsetNumber = 30;
@@ -228,10 +281,22 @@ void addToString(char* tempString)
         if(numLimit == 1)
             return;
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+        }
+
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
+        tokenSet[tokenSetIndex] = SUBTRACTION;
+        tokenSetIndex++;
+
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
         tokens[tokenIndex] = SUBTRACTION;
         tokenIndex++;
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
 
         numIndex = 0;
         offsetNumber = 30;
@@ -254,10 +319,22 @@ void addToString(char* tempString)
         if(numLimit == 1)
             return;
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+        }
+
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
+        tokenSet[tokenSetIndex] = DEVIDE;
+        tokenSetIndex++;
+
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
         tokens[tokenIndex] = DEVIDE;
         tokenIndex++;
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
 
         numIndex = 0;
         offsetNumber = 30;
@@ -280,10 +357,22 @@ void addToString(char* tempString)
         if(numLimit == 1)
             return;
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+        }
+
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
+        tokenSet[tokenSetIndex] = ADDITION;
+        tokenSetIndex++;
+
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
         tokens[tokenIndex] = ADDITION;
         tokenIndex++;
+        tokenSet[tokenSetIndex] = tokenIndex;
+        tokenSetIndex++;
 
         numIndex = 0;
         offsetNumber = 30;
@@ -305,8 +394,10 @@ void addToString(char* tempString)
     {
         tokens[tokenIndex] = atoi(displayNumber);
         tokenIndex++;
+        printf("TOTAL TOKENS : %d\n", tokenIndex);   //  TODO : Remove this when no longer needed
         numLimit = 1;
         repeat = 1;
+        equalTriggered = 1;
         numIndex = 0;
         offsetTotals += 10;
         displayTotals[stringIndex] = ' ';
@@ -315,8 +406,9 @@ void addToString(char* tempString)
         combineTokens();
     } else if(strcmp(tempString, "C") != 0 && repeat == 0)
     {
-        if(((strcmp(tempString, "0") == 0) && (numIndex == 0)) || (numLimit == 1))
+        if((strcmp(tempString, "0") == 0) && (numIndex == 0))
             return;
+
 
         if(numIndex == 0)
         {
@@ -331,6 +423,25 @@ void addToString(char* tempString)
             tokenIndex++;
         }
 
+        if(equalTriggered == 1)
+        {
+            resetArrays();
+
+            numLimit = 0;
+
+            for(int t = 0; t < 30; t++)
+            {
+                displayNumber[t] = '\0';
+            }
+            displayNumber[0] = '0';
+            numIndex = 0;
+            for(int t = 0; t < 100; t++)
+            {
+                displayTotals[t] = '\0';
+            }
+            stringIndex = 0;
+        }
+
         displayTotals[stringIndex] = *tempString;
         stringIndex++;
         displayNumber[numIndex] = *tempString;
@@ -341,21 +452,23 @@ void addToString(char* tempString)
 
     if(strcmp(tempString, "C") == 0)
     {
+        resetArrays();
+        offsetNumber = 30;
+
         for(int t = 0; t < 100; t++)
         {
             displayTotals[t] = '\0';
         }
+
         for(int t = 0; t < 30; t++)
         {
             displayNumber[t] = '\0';
         }
         displayNumber[0] = '0';
-        stringIndex = 0;
         numIndex = 0;
-        offsetTotals = 0;
-        offsetNumber = 30;
+        stringIndex = 0;
         numLimit = 0;
-        tokenIndex = 0;
+        repeat = 0;
     }
 }
 
